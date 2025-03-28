@@ -1,16 +1,33 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
+from django.http import JsonResponse
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.contrib.auth.decorators import login_required
 
-from .models import User
+from .models import *
 
 
 def index(request):
-    return render(request, "network/index.html")
+    return render(request, "network/index.html", {
+      "posts": Post.objects.all()
+    })
 
-
+@login_required
+def create_post(request):
+  if request.method == 'POST':
+    content = request.POST.get('content', '').strip()
+    if not content:
+      return JsonResponse({"error": "content can not be empty"}, status=400)
+    post = Post.objects.create(author=request.user, content=content)
+    return JsonResponse({"message": "Post created successfully", "post": {
+      "author": post.author.username,
+      "content": post.content,
+      "date_stamp": post.date_stamp.strftime("%Y-%m-%d %H:%M:%S")
+    }}, status=200)
+  return JsonResponse({"error": "Invalid request"}, status=400)
+  
 def login_view(request):
     if request.method == "POST":
 

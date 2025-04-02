@@ -11,7 +11,7 @@ from .models import *
 
 def index(request):
     return render(request, "network/index.html", {
-        "posts": Post.objects.all()
+        "posts": Post.objects.all().order_by("-date_stamp")
     })
 
 @login_required
@@ -22,12 +22,33 @@ def create_post(request):
           return JsonResponse({"error": "content can not be empty"}, status=400)
       post = Post.objects.create(author=request.user, content=content)
       return JsonResponse({"message": "Post created successfully", "post": {
+        "id": post.id,
         "author": post.author.username,
         "content": post.content,
         "date_stamp": post.date_stamp.strftime("%Y-%m-%D %H:%M:%S"),
         "total_likes": post.total_likes()
       }}, status=200)
     return JsonResponse({"error": "Invalid request"}, status=400)
+
+@login_required
+def update_post(request):
+    if request.method == 'POST':
+      updated_content = request.POST.get('updated_content', '').strip()
+      if not updated_content:
+          return JsonResponse({"error": "content can not be empty"}, status=400)
+      post_id = request.POST.get("post_id")
+      try:
+          post = Post.objects.get(pk=post_id)
+          if request.user != post.author:
+              return JsonResponse({"error": "Permission Denied"})
+          post.content = updated_content
+          post.save()
+          return JsonResponse({"message": "Post updated successfully", "post": {
+            "updated_content": post.content,
+            "date_stamp": post.updated_at.strftime("%Y-%m-%D %H:%M:%S"),
+          }}, status=200)
+      except Post.DoesNotExist:
+        return JsonResponse({"error": "Post not found or unauthorized"}, status=400)
   
 def login_view(request):
     if request.method == "POST":

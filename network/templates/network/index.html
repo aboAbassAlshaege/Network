@@ -1,54 +1,54 @@
 {% extends "network/layout.html" %}
 
 {% block body %}
-    {% if user.is_authenticated %}
-    <form id="postForm">
-      {% csrf_token %}
-      <textarea name="content"
-      placeholder="What's in your mind?"></textarea>
-      <input type="submit"></input>
-    </form>
-    {% endif %}
-    <div class="post_list">
-      {% for post in posts %}
-      <strong>{{post.author}}</strong>
-      <p>{{post.content}}</p>
-      <small>{{post.date_stamp}}</small>
-      <div>Likes: {{ post.total_likes }}</div>
-      {% endfor %}
-    </div>
-    <script>
-      document.getElementById("postForm").addEventListener("submit", function (e) {
-        e.preventDefault();
-        const content = document.querySelector("[name='content']").value.trim();
-        const csrfToken = document.querySelector("[name='csrfmiddlewaretoken']").value;
-        if (!content) {
-          alert("content can not be empty");
-          return;
-        }
-        let formData = new FormData();
-        formData.append("content", content);
-        formData.append("csrfmiddlewaretoken", csrfToken);
-        fetch("{% url 'create_post' %}",
-        {
-          method: "POST",
-          body: formData
-        }).then(response => response.json()).then(data => {
-          if (data.error){
-            alert(data.error)
-            }else{
-              let new_post = document.createElement("div")
-              new_post.innerHTML = `
+{% if user.is_authenticated %}
+<form id="postForm">
+  {% csrf_token %}
+  <textarea name="content" placeholder="What's in your mind?"></textarea>
+  <input type="submit"></input>
+</form>
+{% endif %}
+<div class="post_list">
+  {% for post in posts %}
+  <strong>{{post.author}}</strong>
+  <p>{{post.content}}</p>
+  <small>{{post.date_stamp}}</small>
+  <div>Likes: {{ post.total_likes }}</div>
+  {% endfor %}
+</div>
+<script>
+  document.getElementById("postForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    const content = document.querySelector("[name='content']").value.trim();
+    const csrfToken = document.querySelector("[name='csrfmiddlewaretoken']").value;
+    if (!content) {
+      alert("content can not be empty");
+      return;
+    }
+    let formData = new FormData();
+    formData.append("content", content);
+    formData.append("csrfmiddlewaretoken", csrfToken);
+    fetch("{% url 'create_post' %}",
+      {
+        method: "POST",
+        body: formData
+      }).then(response => response.json()).then(data => {
+        if (data.error) {
+          alert(data.error)
+        } else {
+          let new_post = document.createElement("div")
+          new_post.innerHTML = `
                <strong>${data.post.author}</strong>
                <p>${data.post.content}</p>
                <small>${data.post.date_stamp}</small>
-               <div>Likes: ${post.total_likes }</div>
+               <div>Likes: ${data.post.total_likes}</div>
               `;
-              document.querySelector(".post_list").prepend(new_post);
-              document.querySelector("[name='content']").value = "";
-             }
-          }
-        ).catch(error => {alert(error)})}
-      )
-    </script>
+          document.querySelector(".post_list").prepend(new_post);
+          document.querySelector("[name='content']").value = "";
+        }
+      }
+      ).catch(error => { alert(error) })
+  }
+  )
+</script>
 {% endblock %}

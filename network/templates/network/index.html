@@ -9,7 +9,7 @@
 </form>
 {% endif %}
 <div class="post_list">
-    {% for post in posts %}
+    {% for post in page_obj %}
     <div class="post" data-post-id="{{ post.id }}">
         <strong>{{post.author}}</strong>
         <p>{{post.content}}</p>

@@ -5,13 +5,15 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
-
+from django.core.paginator import Paginator
 from .models import *
 
 
-def index(request):
+def index(request, page_num=1):
+    paginator = Paginator(Post.objects.all().order_by("-date_stamp"), 10)
     return render(request, "network/index.html", {
-        "posts": Post.objects.all().order_by("-date_stamp")
+        "page_obj": paginator.get_page(page_num),
+        "show_pagination": True
     })
 
 @login_required

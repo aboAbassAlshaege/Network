@@ -13,8 +13,20 @@ def index(request, page_num=1):
     paginator = Paginator(Post.objects.all().order_by("-date_stamp"), 10)
     return render(request, "network/index.html", {
         "page_obj": paginator.get_page(page_num),
-        "show_pagination": True
+        "show_pagination": True,
+        "show_post_author": True
     })
+
+def profile(request, specific_author):
+    try:
+        specific_author = User.objects.get(username=specific_author)
+        posts = Post.objects.filter(author=specific_author).order_by("-date_stamp")
+        return render(request, "network/profile.html", {
+            "specific_author": specific_author,
+            "posts": posts
+        })
+    except User.DoesNotExist:
+        return HttpResponseRedirect(reverse(index))
 
 @login_required
 def create_post(request):

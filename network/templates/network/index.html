@@ -11,7 +11,7 @@
 <div class="post_list">
     {% for post in page_obj %}
     <div class="post" data-post-id="{{ post.id }}">
-        <strong>{{post.author}}</strong>
+        <strong><a href="{% url 'profile' post.author %}">{{post.author}}</a></strong>
         <p>{{post.content}}</p>
         <small>
             {% if post.updated_at %}
@@ -50,7 +50,7 @@
                     let new_post = document.createElement("div")
                     new_post.innerHTML = `
 							<div class="post" data-post-id="${data.post.id}">
-							 <strong>${data.post.author}</strong>
+							 <strong><a href="profiles/${data.post.author} %}">${data.post.author}</a></strong>
 							 <p>${data.post.content}</p>
 							 <small>${data.post.date_stamp}</small>
 							 <div>Likes: ${data.post.total_likes}</div>

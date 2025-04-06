@@ -11,4 +11,5 @@ urlpatterns = [
     path("logout", views.logout_view, name="logout"),
     path("register", views.register, name="register"),
     path("update_post", views.update_post, name="update_post"),
+    path("profiles/<str:specific_author>", views.profile, name="profile")
 ]

@@ -1,0 +1,83 @@
+{% extends "network/layout.html" %}
+
+{% block body %}
+<header>
+    <div>
+        <p id="followers_p">Followers: {{specific_author.profile.followers.count}} Person</p>
+        <p>
+            {% if request.user == specific_author %}
+            You follow: {{ specific_author.profile.following.count }} Person
+
+            {% else %}
+            {{ specific_author }} follows: {{ specific_author.profile.following.count }} Person
+            {% endif %}
+        </p>
+    </div>
+    {% if not request.user == specific_author %}
+    <form id="follow_form">
+        {% csrf_token %}
+        <button id="follow_btn" type="submit">
+            {% if follow_status %}
+            Unfolllow
+            {% else %}
+            Follow
+            {% endif %}
+        </button>
+    </form>
+    {% endif %}
+</header>
+<div class="post_list">
+    {% for post in posts %}
+    <div class="post" data-post-id="{{ post.id }}">
+        <p>{{post.content}}</p>
+        <small>
+            {% if post.updated_at %}
+            {{ post.updated_at }}
+            {% else %}
+            {{post.date_stamp}}
+            {% endif %}
+        </small>
+        <div>Likes: {{ post.total_likes }}</div>
+        {% if request.user == post.author %}
+        <button class="edit-btn">Edit</button>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+<script>
+    let followForm = document.getElementById("follow_form");
+    let followBtn = document.getElementById("follow_btn");
+    let followers_p = document.getElementById("followers_p");
+    const csrfToken = document.querySelector("[name='csrfmiddlewaretoken']").value;
+    const profileOwnerUsername = "{{specific_author.username}}"
+    followForm.addEventListener("submit", function (e) {
+        e.preventDefault();
+        let formData = new FormData()
+        formData.append("csrfmiddlewaretoken", csrfToken);
+        formData.append("profile_page_owner_username", profileOwnerUsername);
+        followBtn.disabled = true;
+        fetch("{% url 'follow' specific_author %}", {
+            method: "POST",
+            body: formData
+        }).then(response => response.json()).then
+            (data => {
+                if (data.error) {
+                    alert(data.error)
+                } else if (data.redirect) {
+                    window.location.href = data.redirect
+                } else {
+                    alert(data.message)
+                    followBtn.classList.toggle("following", data.follow_status);
+                    if (data.follow_status) {
+                        followBtn.textContent = "Unfollow"
+                    } else {
+                        followBtn.textContent = "Follow"
+                    }
+                    followers_p.textContent = `Followers: ${data.followers_count} Person`
+                }
+            }).catch(error => alert(`error from catch: ${error}`))
+        followBtn.disabled = false;
+    })
+
+</script>
+{% endblock %}

@@ -27,6 +27,7 @@
     </div>
     {% endfor %}
 </div>
+{% if user.is_authenticated %}
 <script>
     const csrfToken = document.querySelector("[name='csrfmiddlewaretoken']").value;
     document.getElementById("postForm").addEventListener("submit", function (e) {
@@ -143,4 +144,5 @@
     }
     )
 </script>
+{% endif %}
 {% endblock %}

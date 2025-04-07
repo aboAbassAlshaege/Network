@@ -2,7 +2,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import JsonResponse
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
@@ -17,13 +17,43 @@ def index(request, page_num=1):
         "show_post_author": True
     })
 
+def follow (request, specific_author):
+    if request.method == "POST":
+        if not request.user.is_authenticated:
+            return JsonResponse({"redirect": "/login"}, status=401)
+        target_name = request.POST.get("profile_page_owner_username")
+        try:
+            target_profile = get_object_or_404(User, username=target_name)
+            is_following = request.user.profile.following.filter(id=target_profile.profile.id).exists()
+            if request.user != target_profile:
+                if not is_following:
+                    request.user.profile.following.add(target_profile.profile)
+                    followers_count = target_profile.profile.followers.count()
+                    is_following = True
+                    return JsonResponse({"message": "Followed Successfuly", "follow_status": is_following, "followers_count": followers_count})
+                else:
+                    request.user.profile.following.remove(target_profile.profile)
+                    followers_count = target_profile.profile.followers.count()
+                    is_following = False
+                    return JsonResponse({"message": "Unfollowed Successfully", "follow_status": is_following, "followers_count": followers_count})
+        except User.DoesNotExist:
+            return JsonResponse({"error": "The profile owner doesn't exsit"}, status=400)
+    else:
+        return JsonResponse({"error": "Invalid Request"})
+
 def profile(request, specific_author):
     try:
         specific_author = User.objects.get(username=specific_author)
         posts = Post.objects.filter(author=specific_author).order_by("-date_stamp")
+        if request.user.is_authenticated:
+            follow_status = request.user.profile.following.filter(id=specific_author.profile.id).exists()
+        else:
+            follow_status = False
+
         return render(request, "network/profile.html", {
             "specific_author": specific_author,
-            "posts": posts
+            "posts": posts,
+            "follow_status": follow_status
         })
     except User.DoesNotExist:
         return HttpResponseRedirect(reverse(index))

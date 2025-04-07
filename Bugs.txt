@@ -1,0 +1,2 @@
+- In the profile page, an author can't edit their posts.
+- there is no pagination in the profile page.

@@ -3,17 +3,17 @@
 {% block body %}
 <header>
     <div>
-        <p id="followers_p">Followers: {{specific_author.profile.followers.count}} Person</p>
+        <p id="followers_p">Followers: {{profile_owner.profile.followers.count}} Person</p>
         <p>
-            {% if request.user == specific_author %}
-            You follow: {{ specific_author.profile.following.count }} Person
+            {% if request.user == profile_owner %}
+            You follow: {{ profile_owner.profile.following.count }} Person
 
             {% else %}
-            {{ specific_author }} follows: {{ specific_author.profile.following.count }} Person
+            {{ profile_owner }} follows: {{ profile_owner.profile.following.count }} Person
             {% endif %}
         </p>
     </div>
-    {% if not request.user == specific_author %}
+    {% if not request.user == profile_owner %}
     <form id="follow_form">
         {% csrf_token %}
         <button id="follow_btn" type="submit">
@@ -44,19 +44,20 @@
     </div>
     {% endfor %}
 </div>
+{% include 'network/pagination.html' %}
 <script>
     let followForm = document.getElementById("follow_form");
     let followBtn = document.getElementById("follow_btn");
     let followers_p = document.getElementById("followers_p");
     const csrfToken = document.querySelector("[name='csrfmiddlewaretoken']").value;
-    const profileOwnerUsername = "{{specific_author.username}}"
+    const profileOwnerUsername = "{{profile_owner.username}}"
     followForm.addEventListener("submit", function (e) {
         e.preventDefault();
         let formData = new FormData()
         formData.append("csrfmiddlewaretoken", csrfToken);
         formData.append("profile_page_owner_username", profileOwnerUsername);
         followBtn.disabled = true;
-        fetch("{% url 'follow' specific_author %}", {
+        fetch("{% url 'follow' profile_owner %}", {
             method: "POST",
             body: formData
         }).then(response => response.json()).then

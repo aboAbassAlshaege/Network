@@ -1,6 +1,7 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import JsonResponse
+from django.views.generic import ListView
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
@@ -8,16 +9,22 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 from .models import *
 
+class BasePostList (ListView):
+    model = Post
+    template_name = "network/index.html"
+    context_object_name = "posts"
+    paginate_by = 10
+    ordering = ["-date_stamp"]
 
-def index(request, page_num=1):
-    paginator = Paginator(Post.objects.all().order_by("-date_stamp"), 10)
-    return render(request, "network/index.html", {
-        "page_obj": paginator.get_page(page_num),
-        "show_pagination": True,
-        "show_post_author": True
-    })
+# def index(request, page_num=1):
+#     paginator = Paginator(Post.objects.all().order_by("-date_stamp"), 10)
+#     return render(request, "network/index.html", {
+#         "page_obj": paginator.get_page(page_num),
+#         "show_pagination": True,
+#         "show_post_author": True
+#     })
 
-def follow (request, specific_author):
+def follow (request, profile_owner):
     if request.method == "POST":
         if not request.user.is_authenticated:
             return JsonResponse({"redirect": "/login"}, status=401)
@@ -41,22 +48,39 @@ def follow (request, specific_author):
     else:
         return JsonResponse({"error": "Invalid Request"})
 
-def profile(request, specific_author):
-    try:
-        specific_author = User.objects.get(username=specific_author)
-        posts = Post.objects.filter(author=specific_author).order_by("-date_stamp")
-        if request.user.is_authenticated:
-            follow_status = request.user.profile.following.filter(id=specific_author.profile.id).exists()
+class ProfileView(BasePostList):
+    template_name = "network/profile.html"
+    def get_queryset(self):
+        self.profile_owner = get_object_or_404(User, username=self.kwargs["profile_owner"])
+        return Post.objects.filter(author=self.profile_owner).order_by("-date_stamp")
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        if user.is_authenticated:
+            follow_status = user.profile.following.filter(id=self.profile_owner.profile.id).exists()
         else:
             follow_status = False
+        context["profile_owner"] = self.profile_owner
+        context["follow_status"] = follow_status
+        return context
+    
+# def profile(request, specific_author):
+#     try:
+#         specific_author = User.objects.get(username=specific_author)
+#         posts = Post.objects.filter(author=specific_author).order_by("-date_stamp")
+#         if request.user.is_authenticated:
+#             follow_status = request.user.profile.following.filter(id=specific_author.profile.id).exists()
+#         else:
+#             follow_status = False
 
-        return render(request, "network/profile.html", {
-            "specific_author": specific_author,
-            "posts": posts,
-            "follow_status": follow_status
-        })
-    except User.DoesNotExist:
-        return HttpResponseRedirect(reverse(index))
+#         return render(request, "network/profile.html", {
+#             "specific_author": specific_author,
+#             "posts": posts,
+#             "follow_status": follow_status
+#         })
+#     except User.DoesNotExist:
+#         return HttpResponseRedirect(reverse(index))
 
 @login_required
 def create_post(request):

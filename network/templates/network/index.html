@@ -8,25 +8,7 @@
     <input type="submit"></input>
 </form>
 {% endif %}
-<div class="post_list">
-    {% for post in page_obj %}
-    <div class="post" data-post-id="{{ post.id }}">
-        <strong><a href="{% url 'profile' post.author %}">{{post.author}}</a></strong>
-        <p>{{post.content}}</p>
-        <small>
-            {% if post.updated_at %}
-            {{ post.updated_at }}
-            {% else %}
-            {{post.date_stamp}}
-            {% endif %}
-        </small>
-        <div>Likes: {{ post.total_likes }}</div>
-        {% if request.user == post.author %}
-        <button class="edit-btn">Edit</button>
-        {% endif %}
-    </div>
-    {% endfor %}
-</div>
+{% include 'network/posts_list.html' %}
 {% include 'network/pagination.html' %}
 {% if user.is_authenticated %}
 <script>

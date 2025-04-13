@@ -1,9 +1,7 @@
 <div class="post_list">
-    {% for post in page_obj %}
+    {% for post in posts %}
     <div class="post" data-post-id="{{ post.id }}">
-        {% if show_post_author %}
         <strong><a href="{% url 'profile' post.author %}">{{post.author}}</a></strong>
-        {% endif %}
         <p>{{post.content}}</p>
         <small>
             {% if post.updated_at %}

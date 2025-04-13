@@ -23,6 +23,11 @@ class BasePostList (ListView):
 #         "show_pagination": True,
 #         "show_post_author": True
 #     })
+class FollowingView(BasePostList):
+    template_name = 'network/following.html'
+    def get_queryset(self):
+        following_users = self.request.user.profile.following.values_list("user", flat=True)
+        return Post.objects.filter(author__in=following_users).order_by("-date_stamp")
 
 def follow (request, profile_owner):
     if request.method == "POST":

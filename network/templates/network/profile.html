@@ -26,24 +26,7 @@
     </form>
     {% endif %}
 </header>
-<div class="post_list">
-    {% for post in posts %}
-    <div class="post" data-post-id="{{ post.id }}">
-        <p>{{post.content}}</p>
-        <small>
-            {% if post.updated_at %}
-            {{ post.updated_at }}
-            {% else %}
-            {{post.date_stamp}}
-            {% endif %}
-        </small>
-        <div>Likes: {{ post.total_likes }}</div>
-        {% if request.user == post.author %}
-        <button class="edit-btn">Edit</button>
-        {% endif %}
-    </div>
-    {% endfor %}
-</div>
+{% include 'network/posts_list.html' %}
 {% include 'network/pagination.html' %}
 <script>
     let followForm = document.getElementById("follow_form");

@@ -1,2 +1,5 @@
 - In the profile page, an author can't edit their posts.
 - there is no pagination in the profile page.
+- When rendering the posts, the like button text is 'like' all the time.
+*** Above is solved
+

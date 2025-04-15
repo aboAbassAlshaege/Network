@@ -15,7 +15,17 @@ class BasePostList (ListView):
     context_object_name = "posts"
     paginate_by = 10
     ordering = ["-date_stamp"]
-
+    def get_context_data(self, **kwargs):
+        content = super().get_context_data(**kwargs)
+        if self.request.user.is_authenticated:
+            # make a dictionary, keys represent posts and values are either true or false
+            # to indicate if the post is liked by the user who made the like request
+            is_liked_by_user = {}
+            for post in content["posts"]:
+                is_liked_by_user[post.id] = post.is_liked_by(self.request.user)
+            content["is_liked_by_user"] = is_liked_by_user
+        return content
+    
 # def index(request, page_num=1):
 #     paginator = Paginator(Post.objects.all().order_by("-date_stamp"), 10)
 #     return render(request, "network/index.html", {
@@ -23,6 +33,27 @@ class BasePostList (ListView):
 #         "show_pagination": True,
 #         "show_post_author": True
 #     })
+def toggle_like (request):
+    if request.method == "POST":
+        if not request.user.is_authenticated:
+            return JsonResponse({"redirect": "/login"}, status=401)
+        else:
+            # get the post id
+            post_id = request.POST.get("target_post_id")
+            if not post_id:
+                return JsonResponse({"error": "Missing post ID"}, status=400)
+            # get the target post from database
+            target_post = get_object_or_404(Post, pk=post_id)
+
+            like, created = Like.objects.get_or_create(user=request.user, post=target_post)
+            if created:
+                return JsonResponse({"message": "You liked this post", "liked": True, "total_likes":target_post.total_likes()}, status=200)
+            else:
+                like.delete()
+                return JsonResponse({"message": "You unliked this post", "liked": False, "total_likes":target_post.total_likes()}, status=200)
+    else:
+        return JsonResponse({"error": "Invalid Request"}, status=400)
+
 class FollowingView(BasePostList):
     template_name = 'network/following.html'
     def get_queryset(self):

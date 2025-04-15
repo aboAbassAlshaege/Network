@@ -15,7 +15,6 @@
     </div>
     {% if not request.user == profile_owner %}
     <form id="follow_form">
-        {% csrf_token %}
         <button id="follow_btn" type="submit">
             {% if follow_status %}
             Unfolllow
@@ -28,11 +27,12 @@
 </header>
 {% include 'network/posts_list.html' %}
 {% include 'network/pagination.html' %}
+{% if not request.user == profile_owner %}
 <script>
     let followForm = document.getElementById("follow_form");
     let followBtn = document.getElementById("follow_btn");
     let followers_p = document.getElementById("followers_p");
-    const csrfToken = document.querySelector("[name='csrfmiddlewaretoken']").value;
+    const csrfToken = "{{ csrf_token }}";
     const profileOwnerUsername = "{{profile_owner.username}}"
     followForm.addEventListener("submit", function (e) {
         e.preventDefault();
@@ -64,4 +64,5 @@
     })
 
 </script>
+{% endif %}
 {% endblock %}

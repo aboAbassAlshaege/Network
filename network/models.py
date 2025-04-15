@@ -15,9 +15,13 @@ class Post(models.Model):
   date_stamp = models.DateTimeField(auto_now_add=True)
   updated_at = models.DateTimeField(auto_now=True)
   content = models.TextField()
+
+  def is_liked_by(self, user):
+    return self.likes.filter(user=user).exists()
   
   def total_likes(self):
     return self.likes.count()
+  
   def __str__(self):
     return self.content[:50]
   
@@ -26,7 +30,7 @@ class Like(models.Model):
   post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='likes')
   time_stamp = models.DateTimeField(auto_now_add=True)
   class Meta:
-    constraints= [
+    constraints = [
         models.UniqueConstraint(fields=['post', 'user'], name='unique_user_post')
       ]
   def __str__(self):

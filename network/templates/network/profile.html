@@ -3,19 +3,23 @@
 {% block body %}
 <header>
     <div>
-        <p id="followers_p">Followers: {{profile_owner.profile.followers.count}} Person</p>
-        <p>
+        <h1>{{profile_owner}}'s Profile</h1>
+        <p class=" fst-italic">
+            <span id="followers_p">Followers: {{profile_owner.profile.followers.count}}, </span>
+
             {% if request.user == profile_owner %}
-            You follow: {{ profile_owner.profile.following.count }} Person
+            You follow: {{ profile_owner.profile.following.count }}
 
             {% else %}
-            {{ profile_owner }} follows: {{ profile_owner.profile.following.count }} Person
+            {{ profile_owner }} follows: {{ profile_owner.profile.following.count }}
             {% endif %}
         </p>
+
+
     </div>
     {% if not request.user == profile_owner %}
     <form id="follow_form">
-        <button id="follow_btn" type="submit">
+        <button id="follow_btn" class="btn btn-primary fs-5 fw-bolder" type="submit">
             {% if follow_status %}
             Unfolllow
             {% else %}
@@ -57,7 +61,7 @@
                     } else {
                         followBtn.textContent = "Follow"
                     }
-                    followers_p.textContent = `Followers: ${data.followers_count} Person`
+                    followers_p.textContent = `Followers: ${data.followers_count}`
                 }
             }).catch(error => alert(`error from catch: ${error}`))
         followBtn.disabled = false;

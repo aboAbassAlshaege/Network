@@ -1,22 +1,23 @@
 {% load dict_filters %}
 <div class="post_list">
     {% for post in posts %}
-    <div class="post" data-post-id="{{ post.id }}">
-        <strong><a href="{% url 'profile' post.author %}">{{post.author}}</a></strong>
-        <p>{{post.content}}</p>
-        <small>
+    <div class="post bg-light p-2 p-lg-4 my-2 my-lg-4" data-post-id="{{ post.id }}">
+        <strong><a href="{% url 'profile' post.author %}"
+                class="text-success text-decoration-none fw-bold fs-5">{{post.author}}</a></strong>
+        <p class="text-primary">{{post.content}}</p>
+        <small class="fst-italic">
             {% if post.updated_at %}
             {{ post.updated_at }}
             {% else %}
             {{post.date_stamp}}
             {% endif %}
         </small>
-        <div class="total_likes">Likes: {{ post.total_likes }}</div>
+        <div class="total_likes fst-italic mb-2 mb-lg-4">Likes: {{ post.total_likes }}</div>
         {% if request.user == post.author %}
-        <button class="edit-btn">Edit</button>
+        <button class="edit-btn btn bg-primary text-light">Edit</button>
         {% endif %}
         {% if user.is_authenticated %}
-        <button class="like-btn">
+        <button class="like-btn btn bg-primary text-light">
             {% with post_id=post.id %}
             {% if is_liked_by_user|dict_get:post_id %}
             Liked

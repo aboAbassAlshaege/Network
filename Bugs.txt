@@ -1,5 +1,9 @@
 - In the profile page, an author can't edit their posts.
 - there is no pagination in the profile page.
 - When rendering the posts, the like button text is 'like' all the time.
-*** Above is solved
+
+*** All the Bugs above have been solved ***
+
+- user can not edit or like a post they just made before they refresh the page.
+- the annoying behavior of alerts needs to be changed.
 

@@ -1,0 +1,12 @@
+{% extends "network/layout.html" %}
+{% block body %}
+<header>
+    <h1>Posts from people you follow</h1>
+</header>
+<main>
+    {% include 'network/posts_list.html' %}
+</main>
+<footer>
+    {% include 'network/pagination.html' %}
+</footer>
+{% endblock %}

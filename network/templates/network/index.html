@@ -1,5 +1,5 @@
 {% extends "network/layout.html" %}
-
+{% load static %}
 {% block body %}
 {% if user.is_authenticated %}
 <div class="">
@@ -11,8 +11,10 @@
 </div>
 
 {% endif %}
+
 {% include 'network/posts_list.html' %}
 {% include 'network/pagination.html' %}
+
 {% if user.is_authenticated %}
 <script>
     const csrfToken = "{{ csrf_token }}";
@@ -37,16 +39,17 @@
                     let new_post = document.createElement("div");
                     new_post.innerHTML = `
 							<div class="post post bg-light p-2 p-lg-4 my-2 my-lg-4" data-post-id="${data.post.id}">
-							 <strong><a href="profiles/${data.post.author} %}" class="text-success text-decoration-none fw-bold fs-5">${data.post.author}</a></strong>
+							 <strong><a href="profiles/${data.post.author}" class="text-success text-decoration-none fw-bold fs-5">${data.post.author}</a></strong>
 							 <p class="text-primary">${data.post.content}</p>
 							 <small class="fst-italic">${data.post.date_stamp}</small>
-							 <div class="fst-italic mb-2 mb-lg-4">Likes: ${data.post.total_likes}</div>
+							 <div class="total_likes fst-italic mb-2 mb-lg-4">Likes: ${data.post.total_likes}</div>
 							 <button class="edit-btn btn bg-primary text-light">Edit</button>
                              <button class="like-btn btn bg-primary text-light">Like</button>
 							</div>
 							`;
-
                     document.querySelector(".post_list").prepend(new_post);
+                    new PostEditor(new_post.querySelector(".edit-btn"));
+                    new LikeToggle(new_post.querySelector(".like-btn"));
                     document.querySelector("[name='content']").value = "";
                 }
             }
@@ -54,5 +57,14 @@
     }
     )
 </script>
+
+<!-- necessary variables for the external js files -->
+<script>
+    update_post_url = "{% url 'update_post' %}";
+    toggle_like_url = "{% url 'toggle_like' %}";
+</script>
+<!-- external js files -->
+<script src="{% static 'network/js/handle_edit.js' %}"></script>
+<script src="{% static 'network/js/handle_like.js' %}"></script>
 {% endif %}
 {% endblock %}

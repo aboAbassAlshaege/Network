@@ -1,4 +1,5 @@
 {% extends "network/layout.html" %}
+{% load static %}
 {% block body %}
 <header>
     <h1>Posts from people you follow</h1>
@@ -9,4 +10,11 @@
 <footer>
     {% include 'network/pagination.html' %}
 </footer>
+<!-- necessary variables for the external js file -->
+<script>
+    const csrfToken = "{{ csrf_token }}";
+    toggle_like_url = "{% url 'toggle_like' %}";
+</script>
+<!-- external js file -->
+<script src="{% static 'network/js/handle_like.js' %}"></script>
 {% endblock %}

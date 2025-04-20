@@ -1,4 +1,5 @@
 {% extends "network/layout.html" %}
+{% load static %}
 
 {% block body %}
 <header>
@@ -31,12 +32,20 @@
 </header>
 {% include 'network/posts_list.html' %}
 {% include 'network/pagination.html' %}
+
+<!-- necessary variables for the external js files -->
+<script>
+    const csrfToken = "{{ csrf_token }}"
+    update_post_url = "{% url 'update_post' %}";
+    toggle_like_url = "{% url 'toggle_like' %}";
+</script>
+
+<!-- handle follow -->
 {% if not request.user == profile_owner %}
 <script>
     let followForm = document.getElementById("follow_form");
     let followBtn = document.getElementById("follow_btn");
     let followers_p = document.getElementById("followers_p");
-    const csrfToken = "{{ csrf_token }}";
     const profileOwnerUsername = "{{profile_owner.username}}"
     followForm.addEventListener("submit", function (e) {
         e.preventDefault();
@@ -66,7 +75,13 @@
             }).catch(error => alert(`error from catch: ${error}`))
         followBtn.disabled = false;
     })
-
 </script>
+{% endif %}
+
+<!-- handle like and edit -->
+{% if user.is_authenticated %}
+<!-- external js files -->
+<script src="{% static 'network/js/handle_edit.js' %}"></script>
+<script src="{% static 'network/js/handle_like.js' %}"></script>
 {% endif %}
 {% endblock %}

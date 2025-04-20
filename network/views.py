@@ -153,6 +153,8 @@ def update_post(request):
           }}, status=200)
       except Post.DoesNotExist:
         return JsonResponse({"error": "Post not found or unauthorized"}, status=400)
+    else:
+        return JsonResponse({"error": "Invalid request"}, status=400)
   
 def login_view(request):
     if request.method == "POST":

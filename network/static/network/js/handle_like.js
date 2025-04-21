@@ -23,7 +23,6 @@ class LikeToggle {
                 } else if (data.redirect) {
                     window.location.href = data.redirect;
                 } else {
-                    alert(data.message);
                     if (data.liked) {
                         this.button.textContent = "Liked"
                     } else {
